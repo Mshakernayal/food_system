@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.user import UserCreate, UserLogin, UserResponse, LoginResponse
 from app.services.auth_service import AuthService
 
 
@@ -17,9 +17,9 @@ class AuthController:
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    def login(self, credentials: UserLogin) -> Token:
+    def login(self, credentials: UserLogin) -> LoginResponse:
         try:
             result = self.service.login(credentials.username, credentials.password)
-            return Token(**result)
+            return LoginResponse(**result)
         except ValueError as e:
             raise HTTPException(status_code=401, detail=str(e))

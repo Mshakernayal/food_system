@@ -1,10 +1,13 @@
 from pydantic import BaseModel, EmailStr
 
+from app.models.user import UserType
+
 
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+    type: UserType = UserType.CLIENT
 
 
 class UserLogin(BaseModel):
@@ -16,8 +19,15 @@ class UserResponse(BaseModel):
     id: int
     username: str
     email: str
+    type: UserType
 
     model_config = {"from_attributes": True}
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user_type: str
 
 
 class Token(BaseModel):

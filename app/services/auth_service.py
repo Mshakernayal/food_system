@@ -20,7 +20,8 @@ class AuthService:
         user = User(
             username=user_data.username,
             email=user_data.email,
-            hashed_password=hash_password(user_data.password)
+            hashed_password=hash_password(user_data.password),
+            type=user_data.type.value,
         )
         self.db.add(user)
         self.db.commit()
@@ -34,4 +35,4 @@ class AuthService:
             raise ValueError("Invalid username or password")
 
         token = create_access_token(data={"sub": user.username})
-        return {"access_token": token, "token_type": "bearer"}
+        return {"access_token": token, "token_type": "bearer", "user_type": user.type}
