@@ -35,4 +35,4 @@ class AuthService:
             raise ValueError("Invalid username or password")
 
         token = create_access_token(data={"sub": user.username})
-        return {"access_token": token, "token_type": "bearer", "user_type": user.type}
+        return {"access_token": token, "token_type": "bearer", "username": user.username, "user_type": user.type}

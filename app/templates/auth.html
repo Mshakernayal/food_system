@@ -156,6 +156,10 @@
 
     setMode(true);
 
+    function goHome(username, type) {
+      window.location.href = '/home?username=' + encodeURIComponent(username) + '&user_type=' + encodeURIComponent(type);
+    }
+
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
@@ -167,17 +171,28 @@
           email: document.getElementById('email').value,
           password: password,
         };
-        console.log('Sign In data:', data);
+        fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Registration failed');
+          return res.json();
+        })
+        .then(data => goHome(data.username, data.type))
+        .catch(err => console.error('Register failed:', err));
       } else {
         fetch('/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
         })
-        .then(res => res.json())
-        .then(data => {
-          console.log('User type:', data.user_type);
+        .then(res => {
+          if (!res.ok) throw new Error('Login failed');
+          return res.json();
         })
+        .then(data => goHome(data.username, data.user_type))
         .catch(err => console.error('Login failed:', err));
       }
     });
