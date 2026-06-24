@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+from app.models.product import Product
 import os
+
+from app.database import get_db
 
 router = APIRouter(tags=["Root"])
 
@@ -14,5 +18,9 @@ def root(request: Request):
 
 
 @router.get("/home", response_class=HTMLResponse)
-def home(request: Request, username: str = "", user_type: str = ""):
-    return templates.TemplateResponse(request, "home.html", {"username": username, "user_type": user_type})
+def home(request: Request, username: str = "", user_type: str = "", db: Session = Depends(get_db)):
+    products = db.query(Product).all()
+    return templates.TemplateResponse(request, "home.html", {"username": username, "user_type": user_type, "products": products})
+
+
+
