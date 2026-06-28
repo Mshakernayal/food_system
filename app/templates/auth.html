@@ -53,6 +53,18 @@
     .field input:focus {
       border-color: #4f46e5;
     }
+    .field input.error {
+      border-color: #e53e3e;
+    }
+    .field .error-msg {
+      font-size: 0.8rem;
+      color: #e53e3e;
+      margin-top: 0.25rem;
+      display: none;
+    }
+    .field .error-msg.show {
+      display: block;
+    }
     .field.hidden {
       display: none;
     }
@@ -97,16 +109,19 @@
       <div class="field" id="usernameField">
         <label for="username">Username</label>
         <input type="text" id="username" placeholder="Enter your username" required>
+        <div class="error-msg" id="usernameError"></div>
       </div>
 
       <div class="field hidden" id="emailField">
         <label for="email">Email</label>
         <input type="email" id="email" placeholder="Enter your email">
+        <div class="error-msg" id="emailError"></div>
       </div>
 
       <div class="field" id="passwordField">
         <label for="password">Password</label>
         <input type="password" id="password" placeholder="Enter your password" required>
+        <div class="error-msg" id="passwordError"></div>
       </div>
 
       <button type="submit" id="submitBtn">Sign In</button>
@@ -128,8 +143,24 @@
     const toggleLink = document.getElementById('toggleLink');
     const form = document.getElementById('authForm');
 
+    function clearErrors() {
+      document.querySelectorAll('.error-msg').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('show');
+      });
+      document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+    }
+
+    function showError(inputId, msg) {
+      const input = document.getElementById(inputId);
+      const errEl = document.getElementById(inputId + 'Error');
+      if (input) input.classList.add('error');
+      if (errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
+    }
+
     function setMode(signIn) {
       isSignIn = signIn;
+      clearErrors();
 
       if (signIn) {
         title.textContent = 'Sign In';
@@ -160,8 +191,26 @@
       window.location.href = '/home?username=' + encodeURIComponent(username) + '&user_type=' + encodeURIComponent(type);
     }
 
+    function handleError(res) {
+      return res.json().then(errData => {
+        const msg = errData.detail || 'An error occurred';
+        if (msg.toLowerCase().includes('username')) {
+          showError('username', msg);
+        } else if (msg.toLowerCase().includes('email')) {
+          showError('email', msg);
+        } else if (msg.toLowerCase().includes('password')) {
+          showError('password', msg);
+        } else {
+          showError('username', msg);
+        }
+        throw new Error(msg);
+      });
+    }
+
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+      clearErrors();
+
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
@@ -177,11 +226,11 @@
           body: JSON.stringify(data),
         })
         .then(res => {
-          if (!res.ok) throw new Error('Registration failed');
+          if (!res.ok) return handleError(res);
           return res.json();
         })
         .then(data => goHome(data.username, data.type))
-        .catch(err => console.error('Register failed:', err));
+        .catch(err => {});
       } else {
         fetch('/auth/login', {
           method: 'POST',
@@ -189,11 +238,11 @@
           body: JSON.stringify({ username, password }),
         })
         .then(res => {
-          if (!res.ok) throw new Error('Login failed');
+          if (!res.ok) return handleError(res);
           return res.json();
         })
         .then(data => goHome(data.username, data.user_type))
-        .catch(err => console.error('Login failed:', err));
+        .catch(err => {});
       }
     });
   </script>

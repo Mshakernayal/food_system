@@ -39,6 +39,20 @@
       color: #4f46e5;
       font-weight: 600;
     }
+    .logout-btn {
+      margin-left: 1rem;
+      padding: 0.35rem 0.75rem;
+      background: #e53e3e;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover {
+      background: #c53030;
+    }
     .detail {
       max-width: 900px;
       margin: 0 auto;
@@ -113,6 +127,7 @@
     <a href="/home?username={{ username }}&user_type={{ user_type }}">&larr; Back to Home</a>
     <div class="user-info">
       <span>{{ username }}</span> &middot; {{ user_type }}
+      <a href="/" class="logout-btn">Logout</a>
     </div>
   </div>
 
